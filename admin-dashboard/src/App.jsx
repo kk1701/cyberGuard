@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <h1>
-        ADMIN DASHBOARD
+        ADMIN DASHBOARD HAI
       </h1>
     </>
   )
