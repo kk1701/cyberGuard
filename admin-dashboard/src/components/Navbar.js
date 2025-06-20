@@ -24,10 +24,10 @@ function Navbar(props) {
                         <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
                     </li>
                     <li>
-                        <Link to="/" className="hover:text-blue-400 transition-colors">About</Link>
+                        <Link to="/about" className="hover:text-blue-400 transition-colors">About</Link>
                     </li>
                     <li>
-                        <Link to="/" className="hover:text-blue-400 transition-colors">Contact</Link>
+                        <Link to="/contact" className="hover:text-blue-400 transition-colors">Contact</Link>
                     </li>
                 </ul>
             </nav>

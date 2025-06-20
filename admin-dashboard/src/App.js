@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {Routes, Route} from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
@@ -29,6 +31,8 @@ function App() {
       <Navbar isLoggedIn = {isLoggedIn} setIsLoggedin={setIsLoggedIn}/>
       <Routes>
         <Route path='/' element={<Home/>}/>
+        <Route path='/about' element={<About/>}/>
+        <Route path='/contact' element={<Contact/>}/>
         <Route path='/login' element={<Login setIsLoggedin={setIsLoggedIn}/>}/>
         <Route path='/signup' element={<Signup setIsLoggedin={setIsLoggedIn}/>}/>
         <Route path='/dashboard' element={
