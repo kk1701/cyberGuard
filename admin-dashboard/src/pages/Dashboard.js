@@ -19,8 +19,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_URL = process.env.REACT_APP_API_URL;
-
 const Dashboard = () => {
   const [stats, setStats] = useState({
     total_urls: 0,
@@ -32,31 +30,42 @@ const Dashboard = () => {
   });
 
   const [recentScans, setRecentScans] = useState([]);
+  const [showPhishyOnly, setShowPhishyOnly] = useState(false);
+
+  const fetchScans = async (phishyOnly = false) => {
+    try {
+      const url = phishyOnly
+        ? "http://localhost:8000/api/dashboard/recent-scans?verdict=Phishing"
+        : "http://localhost:8000/api/dashboard/recent-scans";
+      const response = await fetch(url);
+      const data = await response.json();
+      setRecentScans(data);
+    } catch (err) {
+      console.error("Failed to fetch recent scans", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/dashboard/stats`);
-        const data = await response.json();
-        setStats(data);
+        const statsRes = await fetch("http://localhost:8000/api/dashboard/stats");
+        const statsData = await statsRes.json();
+        setStats(statsData);
+        fetchScans(false);
       } catch (error) {
-        console.error("Failed to fetch stats", error);
+        console.error("Error fetching dashboard data:", error);
       }
     };
 
-    const fetchScans = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/dashboard/recent-scans`);
-        const scans = await res.json();
-        setRecentScans(scans);
-      } catch (err) {
-        console.error("Failed to fetch recent scans", err);
-      }
-    };
-
-    fetchStats();
-    fetchScans();
+    fetchData();
   }, []);
+
+  const handleTogglePhishy = () => {
+    const nextState = !showPhishyOnly;
+    setShowPhishyOnly(nextState);
+    fetchScans(nextState);
+  };
+
 
   const pieData = [
     { name: "Phishing", value: stats.phishing_urls },
@@ -74,6 +83,10 @@ const Dashboard = () => {
   ];
 
   const COLORS = ["#ef4444", "#22c55e"];
+
+  const filteredScans = showPhishyOnly
+    ? recentScans.filter((scan) => scan.verdict.toLowerCase() === "phishing")
+    : recentScans;
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white p-8">
@@ -128,7 +141,6 @@ const Dashboard = () => {
 
       {/* Chart Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {/* Pie Chart */}
         <div className="bg-[#1e293b] p-6 rounded-xl shadow-md col-span-1">
           <h2 className="text-xl font-semibold mb-4 text-yellow-300">Phishing vs Legitimate</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -152,7 +164,6 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* QR Pie Chart */}
         <div className="bg-[#1e293b] p-6 rounded-xl shadow-md col-span-1">
           <h2 className="text-xl font-semibold mb-4 text-yellow-300">QR Code Status</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -176,7 +187,6 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Bar Chart */}
         <div className="bg-[#1e293b] p-6 rounded-xl shadow-md col-span-1">
           <h2 className="text-xl font-semibold mb-4 text-yellow-300">Scan Type Comparison</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -194,7 +204,15 @@ const Dashboard = () => {
 
       {/* Recent Scans Table */}
       <div className="bg-[#1e293b] p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 text-yellow-300">Recent Scans</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-yellow-300">Recent Scans</h2>
+          <button
+            onClick={handleTogglePhishy}
+            className= {`${showPhishyOnly ?"bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white text-sm" : "bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-white text-sm" }`}
+          >
+            {showPhishyOnly ? "Show All" : "Show Phishy Only"}
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
@@ -202,14 +220,16 @@ const Dashboard = () => {
                 <th className="text-left py-2 px-4">Type</th>
                 <th className="text-left py-2 px-4">Content</th>
                 <th className="text-left py-2 px-4">Verdict</th>
-                <th className="text-left py-2 px-4">Phishing Probability</th>
+                <th className="text-left py-2 px-4">Confidence</th>
               </tr>
             </thead>
             <tbody>
-              {recentScans.map((item, idx) => (
+              {filteredScans.map((item, idx) => (
                 <tr key={idx} className="border-t border-gray-700 hover:bg-[#2d3748]">
                   <td className="py-2 px-4">{item.type}</td>
-                  <td className="py-2 px-4">{item.content}</td>
+                  <td className="py-2 px-4 max-w-[300px] whitespace-nowrap overflow-hidden text-ellipsis">
+                    {item.content}
+                  </td>
                   <td className={`py-2 px-4 ${item.verdict === "Legitimate" ? "text-green-400" : "text-red-400"}`}>
                     {item.verdict}
                   </td>

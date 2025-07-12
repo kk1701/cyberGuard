@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from app.schemas.urlPrediction_schema import UrlPrediction
 from app.schemas.imagePrediction_schema import ImagePrediction
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -24,13 +25,20 @@ def get_dashboard_stats():
     }
 
 @router.get("/dashboard/recent-scans")
-def get_recent_scans():
-    from app.schemas.urlPrediction_schema import UrlPrediction
-    from app.schemas.imagePrediction_schema import ImagePrediction
+def get_recent_scans(verdict: str = Query(None)):
+    # Fetch URLs
+    url_query = UrlPrediction.objects.order_by("-id")
+    if verdict:
+        url_query = url_query.filter(prediction__iexact=verdict)
 
-    recent_urls = UrlPrediction.objects.order_by("-id")[:5]
-    recent_qrs = ImagePrediction.objects(status="success").order_by("-id")[:5]
+    recent_urls = url_query[:5]
 
+    # Fetch QRs
+    qr_query = ImagePrediction.objects(status="success").order_by("-id")
+    if verdict:
+        qr_query = qr_query.filter(prediction__iexact=verdict)
+
+    recent_qrs = qr_query[:5]
 
     def format(entry, _type):
         return {
