@@ -1,4 +1,4 @@
-import img from '../assets/f2.png';
+import img from '../assets/f3.png';
 import { Link, useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -16,10 +16,7 @@ function Navbar(props) {
     }
     return (
         <div className='bg-gray-900 text-white flex justify-between items-center px-8 py-4 shadow-md'>
-            <Link to='/'>
                 <img src={img} alt="logo" width={160} height={15} loading='lazy' />
-            </Link>
-
             <nav>
                 <ul className='flex gap-6 text-lg'>
                     <li>

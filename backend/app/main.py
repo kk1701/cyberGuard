@@ -5,8 +5,8 @@ from mongoengine import connect
 from dotenv import load_dotenv
 import os
 
-from app.routes.url_prediction_routes import router as url_router
-from app.routes.image_prediction_routes import router as image_router
+# from app.routes.url_prediction_routes import router as url_router
+# from app.routes.image_prediction_routes import router as image_router
 from app.routes.user_routes import router as user_router
 from app.routes.dashboard_routes import router as dashboard_router
 
@@ -28,8 +28,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(url_router, prefix="/api")
-app.include_router(image_router, prefix="/api")
+# app.include_router(url_router, prefix="/api")
+# app.include_router(image_router, prefix="/api")
 app.include_router(user_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 
